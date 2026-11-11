@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<style>
+:root{--fg:#1d1d1f;--bg:#fdfdfc;--muted:#5f6368;--link:#1a5fb4;--rule:#e3e3e0}
+@media (prefers-color-scheme:dark){:root{--fg:#e6e6e3;--bg:#161617;--muted:#a0a0a5;--link:#8ab4f8;--rule:#333336}}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 Georgia,"Times New Roman",serif}
+main,header,footer{max-width:42rem;margin:0 auto;padding:0 16px}
+header{padding-top:2rem;border-bottom:1px solid var(--rule)}
+header a{color:var(--fg);text-decoration:none;font-weight:bold}
+a{color:var(--link)} h1,h2,h3{line-height:1.25}
+pre,code{font-size:.9em} pre{overflow-x:auto}
+.katex-display{overflow-x:auto;overflow-y:hidden}
+.meta,footer{color:var(--muted);font-size:.9em}
+footer{padding:2rem 16px;border-top:1px solid var(--rule);margin-top:3rem}
+</style>
+</head>
+<body>
+<header><p><a href="{{ '/' | relative_url }}">{{ site.title }}</a></p></header>
+<main>{{ content }}</main>
+<footer>{{ site.description }}</footer>
+</body>
+</html>

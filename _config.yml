@@ -1,0 +1,10 @@
+title: Oluseye Akomolede
+description: Notes on computational physics and machine learning
+url: "https://oluseye-akomolede.github.io"
+baseurl: "/blog"
+markdown: kramdown
+kramdown:
+  input: GFM
+  math_engine: mathjax
+permalink: /:year/:month/:day/:title/
+exclude: [README.md]
