@@ -18,7 +18,7 @@ Every claim about the code here is a claim about commit `261a630` of the public 
 
 The output is a mask at half the input resolution. A 352 by 352 image becomes two logit maps at 176 by 176, one for object and one for background, and the mask is the per-pixel comparison between them. The model is not multi-class and it is not an instance segmenter: it does not say "car" or "person", and it does not separate one object from the next. It answers a narrower question, which pixels belong to any object at all, and it answers it on a live video feed, on a device that fits in a hand.
 
-That narrowness is deliberate. The whole model runs on a Jetson Orin Nano at 14 frames per second.
+It answers that question on a live video feed: the whole model runs on a Jetson Orin Nano at 14 frames per second.
 
 ## What it is good at
 
