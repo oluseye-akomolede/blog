@@ -8,11 +8,11 @@ A segmentation model looks at an image and decides, for every pixel, what it bel
 
 ## What HCM is
 
-HCM is an image-segmentation model. For each pixel of a camera frame it decides whether the pixel belongs to an object or to the background. The training target is the union of every object in the image, and the model has two output classes ([model_utils.py:1860](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/model_utils.py#L1860), [trainer.py:3858](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/trainer.py#L3858)). It is trained on COCO first and then on a mix of BDD100K street-driving scenes and COCO, and it runs in real time on an NVIDIA Jetson Orin Nano ([README.md:3](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/README.md#L3), [README.md:9](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/README.md#L9)).
+HCM is an image-segmentation model. For each pixel of a camera frame it decides whether the pixel belongs to an object or to the background. The training target is the union of every object in the image, and the model has two output classes ([model_utils.py:1860](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/model_utils.py#L1860), [trainer.py:3858](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/trainer.py#L3858)). It is trained on COCO first and then on a mix of BDD100K street-driving scenes and COCO, and it runs in real time on an NVIDIA Jetson Orin Nano ([README.md:3](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/README.md#L3), [README.md:9](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/README.md#L9)).
 
 HCM is not my invention. It stands for Hierarchical Coherence Modeling, from Fengyang Xiao, Pan Zhang, Chunming He, Runze Hu and Yutao Liu, "Concealed Object Segmentation with Hierarchical Coherence Modeling", CICAI 2023, arXiv:2401.11767 (22 January 2024). The paper designed HCM for concealed-object segmentation: camouflaged objects, polyps and transparent objects. The code I describe here is an independent implementation of that design, adapted to street-scene segmentation on a Jetson. The architecture and the three modules in the middle of it are the paper's work. The adaptations are the subject of the section near the end.
 
-Every claim about the code here is a claim about commit `4a2d186` of the public repository, where the paths and line numbers I cite can be checked.
+Every claim about the code here is a claim about commit `261a630` of the public repository, where the paths and line numbers I cite can be checked.
 
 ## What it is for
 
@@ -28,7 +28,7 @@ On that metric the live model scores 83.12 on BDD100K, 79.46 on COCO and 81.29 o
 
 ## The backbone, which is not ours either
 
-The live model uses ConvNeXt V2-Tiny, loaded through timm with the tag `convnextv2_tiny.fcmae_ft_in22k_in1k` ([backbones.py:38](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/backbones.py#L38)). It was pretrained with FCMAE, ConvNeXt V2's masked-autoencoder pretraining, on ImageNet-22k, then fine-tuned on ImageNet-1k. ConvNeXt V2 is from Woo, Debnath, Hu, Chen, Liu, Kweon and Xie, "ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders", CVPR 2023.
+The live model uses ConvNeXt V2-Tiny, loaded through timm with the tag `convnextv2_tiny.fcmae_ft_in22k_in1k` ([backbones.py:38](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/backbones.py#L38)). It was pretrained with FCMAE, ConvNeXt V2's masked-autoencoder pretraining, on ImageNet-22k, then fine-tuned on ImageNet-1k. ConvNeXt V2 is from Woo, Debnath, Hu, Chen, Liu, Kweon and Xie, "ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders", CVPR 2023.
 
 The backbone turns the image into four feature maps, at 1/4, 1/8, 1/16 and 1/32 of the input size. For the Tiny model they have 96, 192, 384 and 768 channels. HCM keeps those four maps and throws away the backbone's own classifier.
 
@@ -48,13 +48,13 @@ The paper contributes ISC, CSC, RRD and the way they are wired together. This im
 
 ### The neck
 
-Each of the four backbone maps gets a 1 by 1 convolution and a GroupNorm that bring it to 128 channels, and then all four are resized to the 1/4 grid, 88 by 88 ([hcm_nn.py:856-861](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L856-L861), [hcm_nn.py:970-976](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L970-L976)). The outputs are four maps of shape 128 by 88 by 88, one per level, and every block after this reads from that common grid.
+Each of the four backbone maps gets a 1 by 1 convolution and a GroupNorm that bring it to 128 channels, and then all four are resized to the 1/4 grid, 88 by 88 ([hcm_nn.py:856-861](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L856-L861), [hcm_nn.py:970-976](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L970-L976)). The outputs are four maps of shape 128 by 88 by 88, one per level, and every block after this reads from that common grid.
 
 The neck is also where most of the width is cut. The earlier version of this code widened every level to 2048 channels; this one narrows to 128.
 
 ### The ISC blocks
 
-There are four, one per level. Each takes a 128 by 88 by 88 map and returns 32 by 88 by 88. Inside, the input feeds three branches. All three branches start with a 1 by 1 convolution. The second and third then apply a 3 by 3 and a 5 by 5 convolution, and those two results are added. The sum feeds a second 3 by 3 and 5 by 5 pair, and those two results are multiplied rather than added, which lets one scale gate the other. A GroupNorm and a 3 by 3 convolution follow, and the result is added to the first branch, a single 1 by 1 convolution of the input that serves as the shortcut ([hcm_nn.py:473-503](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L473-L503)).
+There are four, one per level. Each takes a 128 by 88 by 88 map and returns 32 by 88 by 88. Inside, the input feeds three branches. All three branches start with a 1 by 1 convolution. The second and third then apply a 3 by 3 and a 5 by 5 convolution, and those two results are added. The sum feeds a second 3 by 3 and 5 by 5 pair, and those two results are multiplied rather than added, which lets one scale gate the other. A GroupNorm and a 3 by 3 convolution follow, and the result is added to the first branch, a single 1 by 1 convolution of the input that serves as the shortcut ([hcm_nn.py:473-503](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L473-L503)).
 
 ![One ISC block: three 1 by 1 branches, a summed 3 by 3 and 5 by 5 pair, a multiplied second pair, then group normalisation, a 3 by 3 convolution and a shortcut]({{ site.baseurl }}/assets/hcm-architecture/isc.svg)
 
@@ -62,7 +62,7 @@ In the paper this block is called intra-stage coherence. The structure above is 
 
 ### The CSC blocks
 
-There are three, and they merge levels from coarse to fine. A CSC block takes two 32-channel maps at 88 by 88. It normalises both with GroupNorm, upsamples the coarser one and adds them, calling the sum S. S is then average-pooled to 16 by 16, normalised, and passed through the attention module. The attention is multi-head self-attention with 8 heads of 4 channels each over the 256 positions of the 16 by 16 grid, with query, key, value and output as 1 by 1 convolutions. The result is upsampled back to 88 by 88 and passed through PONO, a per-pixel normalisation across channels with a learned scale and shift. The v2 decoder then adds S back to the output, so detail finer than the 16 by 16 attention grid still reaches the decoder ([hcm_nn.py:586-633](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L586-L633)).
+There are three, and they merge levels from coarse to fine. A CSC block takes two 32-channel maps at 88 by 88. It normalises both with GroupNorm, upsamples the coarser one and adds them, calling the sum S. S is then average-pooled to 16 by 16, normalised, and passed through the attention module. The attention is multi-head self-attention with 8 heads of 4 channels each over the 256 positions of the 16 by 16 grid, with query, key, value and output as 1 by 1 convolutions. The result is upsampled back to 88 by 88 and passed through PONO, a per-pixel normalisation across channels with a learned scale and shift. The v2 decoder then adds S back to the output, so detail finer than the 16 by 16 attention grid still reaches the decoder ([hcm_nn.py:586-633](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L586-L633)).
 
 ![One CSC block: both inputs normalised, the coarse one upsampled and added to form S, pooled to 16 by 16, attended, upsampled, positionally normalised, and added back to S]({{ site.baseurl }}/assets/hcm-architecture/csc.svg)
 
@@ -70,13 +70,13 @@ This block is called cross-stage coherence in the paper. Two differences are wor
 
 ### The ASPP seed
 
-ASPP is the standard DeepLab multi-rate context module, from Chen, Papandreou, Schroff and Adam, "Rethinking Atrous Convolution for Semantic Image Segmentation" (2017), and it is not this project's invention. It reads the deepest level, already resized to 128 by 88 by 88, and runs five branches in parallel: a 1 by 1 convolution, three 3 by 3 convolutions dilated by 6, 12 and 18, and a branch that pools the map down to a 4 by 4 grid and upsamples it back. Each has GroupNorm and ReLU. The five are joined and reduced by a 1 by 1 convolution with stride 2, followed by GroupNorm and ReLU, giving a 32 by 44 by 44 map ([hcm_nn.py:716-751](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L716-L751)).
+ASPP is the standard DeepLab multi-rate context module, from Chen, Papandreou, Schroff and Adam, "Rethinking Atrous Convolution for Semantic Image Segmentation" (2017), and it is not this project's invention. It reads the deepest level, already resized to 128 by 88 by 88, and runs five branches in parallel: a 1 by 1 convolution, three 3 by 3 convolutions dilated by 6, 12 and 18, and a branch that pools the map down to a 4 by 4 grid and upsamples it back. Each has GroupNorm and ReLU. The five are joined and reduced by a 1 by 1 convolution with stride 2, followed by GroupNorm and ReLU, giving a 32 by 44 by 44 map ([hcm_nn.py:716-751](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L716-L751)).
 
 That map is the first prediction, at stride 8. Each RRD block below it upsamples the prediction it is given back to 88 by 88 before using it, so the priors do not have to share a resolution.
 
 ### The RRD blocks
 
-There are four, and they decode from coarse to fine. Each takes a 32 by 88 by 88 feature map and a prior prediction of any size, and returns 32 by 88 by 88. The prior is upsampled and passed through a sigmoid to give a soft mask, called sigma. The features are then viewed twice: once multiplied by sigma, which keeps what the current prediction calls object, and once multiplied by one minus sigma, which keeps what it calls background. Each view gets a GroupNorm. The v2 decoder joins them on the channel axis, giving 64 channels, and fuses them with a 1 by 1 convolution back to 32, then applies a residual channel attention block and a 3 by 3 convolution ([hcm_nn.py:671-713](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L671-L713)).
+There are four, and they decode from coarse to fine. Each takes a 32 by 88 by 88 feature map and a prior prediction of any size, and returns 32 by 88 by 88. The prior is upsampled and passed through a sigmoid to give a soft mask, called sigma. The features are then viewed twice: once multiplied by sigma, which keeps what the current prediction calls object, and once multiplied by one minus sigma, which keeps what it calls background. Each view gets a GroupNorm. The v2 decoder joins them on the channel axis, giving 64 channels, and fuses them with a 1 by 1 convolution back to 32, then applies a residual channel attention block and a 3 by 3 convolution ([hcm_nn.py:671-713](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L671-L713)).
 
 ![One RRD block: the prior is upsampled and passed through a sigmoid, the features are weighted by sigma and by one minus sigma, group normalised, fused by a 1 by 1 convolution, then passed through a residual channel attention block and a 3 by 3 convolution]({{ site.baseurl }}/assets/hcm-architecture/rrd.svg)
 
@@ -84,13 +84,13 @@ The paper calls this the reversible re-calibration decoder, and the two-view ide
 
 ### Refinement and the head
 
-The decoder's last output is at stride 4. The refinement step doubles it to 176 by 176. ConvNeXt V2-Tiny has no stride-2 feature map, so the earliest backbone map, c2 at 96 by 88 by 88, is upsampled to 176 by 176 and projected from 96 to 32 channels with a 1 by 1 convolution. It is joined with the upsampled decoder output, giving 64 channels, and two rounds of convolution, GroupNorm and ReLU bring it back to 32 ([hcm_nn.py:1063-1098](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L1063-L1098)). The head is a single 1 by 1 convolution to the two class logits.
+The decoder's last output is at stride 4. The refinement step doubles it to 176 by 176. ConvNeXt V2-Tiny has no stride-2 feature map, so the earliest backbone map, c2 at 96 by 88 by 88, is upsampled to 176 by 176 and projected from 96 to 32 channels with a 1 by 1 convolution. It is joined with the upsampled decoder output, giving 64 channels, and two rounds of convolution, GroupNorm and ReLU bring it back to 32 ([hcm_nn.py:1063-1098](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L1063-L1098)). The head is a single 1 by 1 convolution to the two class logits.
 
 The refinement step is this implementation's addition. Its point is that the finer mask is built from the backbone's own fine detail, not by stretching the coarse mask alone.
 
 ## The data flow, exactly
 
-For the live configuration, a 352 by 352 input, ConvNeXt V2-Tiny, a neck of 128 and the v2 decoder ([hcm_nn.py:936-1050](https://github.com/oluseye-akomolede/hcm-segmentation/blob/4a2d186/ecs_hcm_model/core/hcm_nn.py#L936-L1050)):
+For the live configuration, a 352 by 352 input, ConvNeXt V2-Tiny, a neck of 128 and the v2 decoder ([hcm_nn.py:936-1050](https://github.com/oluseye-akomolede/hcm-segmentation/blob/261a630/ecs_hcm_model/core/hcm_nn.py#L936-L1050)):
 
 1. The backbone produces c2 at 96 by 88 by 88, c3 at 192 by 44 by 44, c4 at 384 by 22 by 22 and c5 at 768 by 11 by 11. c2 is kept aside for the refinement step.
 2. The neck turns each into 128 channels and resizes all four to 88 by 88, giving r2, r3, r4 and r5.
