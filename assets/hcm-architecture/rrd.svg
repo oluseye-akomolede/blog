@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="1000" height="380" role="img" aria-labelledby="t">
+  <title id="t">One RRD block: the previous prediction is upsampled and passed through a sigmoid to give a soft mask, the features are viewed twice, once weighted by the mask and once by one minus the mask, both views are group normalised and fused by a 1 by 1 convolution, then passed through a residual channel attention block and a 3 by 3 convolution.</title>
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#57606a"/>
+    </marker>
+  </defs>
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2328">
+
+    <rect x="10" y="80" width="130" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="75" y="101" text-anchor="middle">features</text>
+    <text x="75" y="118" text-anchor="middle">32×88×88</text>
+
+    <rect x="10" y="250" width="130" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="75" y="271" text-anchor="middle">prior prediction</text>
+    <text x="75" y="288" text-anchor="middle">any size</text>
+
+    <rect x="180" y="250" width="90" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="225" y="280" text-anchor="middle">upsample</text>
+    <rect x="300" y="250" width="110" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="355" y="271" text-anchor="middle">sigmoid</text>
+    <text x="355" y="288" text-anchor="middle">→ σ</text>
+
+    <rect x="300" y="60" width="110" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="355" y="81" text-anchor="middle">f × σ</text>
+    <text x="355" y="98" text-anchor="middle">(object view)</text>
+
+    <rect x="300" y="160" width="110" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="355" y="181" text-anchor="middle">f × (1−σ)</text>
+    <text x="355" y="198" text-anchor="middle">(background view)</text>
+
+    <rect x="450" y="60" width="60" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="480" y="90" text-anchor="middle">GN</text>
+    <rect x="450" y="160" width="60" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="480" y="190" text-anchor="middle">GN</text>
+
+    <rect x="550" y="105" width="120" height="60" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="610" y="129" text-anchor="middle">1×1 conv</text>
+    <text x="610" y="147" text-anchor="middle">64 → 32</text>
+
+    <rect x="710" y="105" width="140" height="60" rx="5" fill="#f6f8fa" stroke="#8250df" stroke-width="1.6"/>
+    <text x="780" y="129" text-anchor="middle">RCAB</text>
+    <text x="780" y="147" text-anchor="middle">squeeze-and-excitation</text>
+
+    <rect x="880" y="110" width="70" height="50" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="915" y="140" text-anchor="middle">3×3</text>
+
+    <rect x="880" y="220" width="90" height="44" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="925" y="247" text-anchor="middle">out 32</text>
+
+    <g fill="none" stroke="#57606a" stroke-width="1.3" marker-end="url(#ar)">
+      <line x1="140" y1="274" x2="178" y2="274"/>
+      <line x1="270" y1="275" x2="298" y2="275"/>
+      <polyline points="140,105 220,105 220,85 298,85"/>
+      <polyline points="140,105 220,105 220,185 298,185"/>
+      <polyline points="410,275 430,275 430,85 448,85"/>
+      <polyline points="410,275 430,275 430,185 448,185"/>
+      <polyline points="510,85 530,85 530,125 548,125"/>
+      <polyline points="510,185 530,185 530,145 548,145"/>
+      <line x1="670" y1="135" x2="708" y2="135"/>
+      <line x1="850" y1="135" x2="878" y2="135"/>
+      <line x1="915" y1="160" x2="915" y2="218"/>
+    </g>
+  </g>
+</svg>
