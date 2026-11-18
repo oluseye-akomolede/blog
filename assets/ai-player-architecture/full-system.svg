@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 670" width="1000" height="670" role="img" aria-labelledby="t">
+  <title id="t">AI Player, whole system: player chat arrives through the mod, the mod exposes an HTTP API to a Python agent, the agent observes chat and world state, matches the order against a known skill in plain code, otherwise runs the L2 orchestrator with the L3 planner, checks criteria against the world, and can escalate a question to the player for an L4 ruling or to an optional L5 external model; the agent sends a directive back to the mod, which plays it every server tick and reports progress and results on the same route. Side channels: the trajectory log feeds an off-loop skill author that registers validated skills, plus the dashboard and the shared task board.</title>
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#57606a"/>
+    </marker>
+  </defs>
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">
+
+    <rect x="16" y="16" width="180" height="56" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="106" y="38" text-anchor="middle" font-weight="600">Player</text>
+    <text x="106" y="57" text-anchor="middle">orders in chat</text>
+
+    <rect x="16" y="96" width="388" height="452" rx="6" fill="#eef2f6" stroke="#57606a"/>
+    <text x="30" y="120" font-size="14" font-weight="600">The mod (Java, inside the server)</text>
+
+    <rect x="36" y="136" width="196" height="68" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="134" y="158" text-anchor="middle">HTTP API</text>
+    <text x="134" y="177" text-anchor="middle" font-size="12">bounded wait, 503 if slow</text>
+    <text x="134" y="195" text-anchor="middle">directive in, progress out</text>
+
+    <rect x="36" y="222" width="210" height="68" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="141" y="244" text-anchor="middle">BotBrain.tick()</text>
+    <text x="141" y="262" text-anchor="middle">every server tick</text>
+    <text x="141" y="280" text-anchor="middle">reflex layer first</text>
+
+    <rect x="36" y="310" width="236" height="64" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="154" y="331" text-anchor="middle">Behavior / SkillBehavior</text>
+    <text x="154" y="349" text-anchor="middle">walks a skill tree</text>
+    <text x="154" y="366" text-anchor="middle">one action at a time</text>
+
+    <rect x="36" y="394" width="150" height="48" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="111" y="415" text-anchor="middle">the world</text>
+    <text x="111" y="433" text-anchor="middle">blocks, items, mobs</text>
+
+    <rect x="456" y="96" width="528" height="452" rx="6" fill="#eef2f6" stroke="#57606a"/>
+    <text x="470" y="120" font-size="14" font-weight="600">The agent (Python, one thread per bot)</text>
+
+    <rect x="476" y="136" width="310" height="68" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="631" y="158" text-anchor="middle">BotRunner._loop</text>
+    <text x="631" y="176" text-anchor="middle">observes chat and world state</text>
+    <text x="631" y="194" text-anchor="middle">checks in every 2 s by default</text>
+
+    <rect x="476" y="222" width="264" height="60" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="608" y="242" text-anchor="middle">skill matcher</text>
+    <text x="608" y="260" text-anchor="middle">plain code, no model call</text>
+    <text x="608" y="277" text-anchor="middle">a hit returns a SKILL directive</text>
+
+    <rect x="476" y="300" width="264" height="60" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="608" y="320" text-anchor="middle">L2 orchestrator</text>
+    <text x="608" y="338" text-anchor="middle">deterministic, owns the plan</text>
+    <text x="608" y="355" text-anchor="middle">retries or re-plans</text>
+
+    <rect x="476" y="378" width="290" height="66" rx="5" fill="#f6f8fa" stroke="#8250df" stroke-width="1.6"/>
+    <text x="621" y="399" text-anchor="middle">L3 planner (local model)</text>
+    <text x="621" y="417" text-anchor="middle">one call per plan or subtask</text>
+    <text x="621" y="435" text-anchor="middle">plan, execute, re-plan</text>
+
+    <rect x="476" y="462" width="250" height="56" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="601" y="483" text-anchor="middle">criteria check</text>
+    <text x="601" y="501" text-anchor="middle">the world decides first</text>
+
+    <rect x="786" y="300" width="182" height="60" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="877" y="320" text-anchor="middle">L4 player question</text>
+    <text x="877" y="338" text-anchor="middle">inbox, plan blocks</text>
+    <text x="877" y="355" text-anchor="middle" font-size="12">times out, then falls back</text>
+
+    <rect x="786" y="378" width="182" height="66" rx="5" fill="#f6f8fa" stroke="#8250df" stroke-width="1.6"/>
+    <text x="877" y="399" text-anchor="middle">L5 external model</text>
+    <text x="877" y="417" text-anchor="middle">player's own key</text>
+    <text x="877" y="435" text-anchor="middle">answer needs approval</text>
+
+    <g fill="none" stroke="#57606a" stroke-width="1.3" marker-end="url(#ar)">
+      <line x1="106" y1="72" x2="106" y2="94"/>
+      <line x1="134" y1="204" x2="134" y2="220"/>
+      <line x1="141" y1="290" x2="141" y2="308"/>
+      <line x1="154" y1="374" x2="154" y2="392"/>
+      <line x1="232" y1="156" x2="474" y2="156"/>
+      <line x1="474" y1="192" x2="234" y2="192"/>
+      <line x1="608" y1="204" x2="608" y2="220"/>
+      <line x1="608" y1="282" x2="608" y2="298"/>
+      <line x1="608" y1="360" x2="608" y2="376"/>
+      <line x1="601" y1="444" x2="601" y2="460"/>
+      <polyline points="760,378 760,330 784,330"/>
+      <line x1="877" y1="360" x2="877" y2="376"/>
+      <polyline points="600,548 600,572 101,572 101,588"/>
+      <line x1="758" y1="548" x2="758" y2="588"/>
+      <line x1="900" y1="548" x2="900" y2="588"/>
+      <line x1="186" y1="618" x2="228" y2="618"/>
+      <line x1="420" y1="618" x2="462" y2="618"/>
+    </g>
+
+    <text x="354" y="147" text-anchor="middle" font-size="12">chat and world state</text>
+    <text x="354" y="184" text-anchor="middle" font-size="12">directive</text>
+    <text x="616" y="215" font-size="12">order</text>
+    <text x="616" y="295" font-size="12">no match</text>
+    <text x="616" y="372" font-size="12">plan</text>
+    <text x="750" y="292" font-size="12" text-anchor="end">ambiguous</text>
+    <text x="886" y="372" font-size="12">player chooses</text>
+
+    <rect x="16" y="590" width="170" height="56" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="101" y="612" text-anchor="middle">trajectory log</text>
+    <text x="101" y="630" text-anchor="middle">every planner call</text>
+
+    <rect x="230" y="590" width="190" height="56" rx="5" fill="#f6f8fa" stroke="#8250df" stroke-width="1.6"/>
+    <text x="325" y="612" text-anchor="middle">skill author</text>
+    <text x="325" y="630" text-anchor="middle">generalizes routines</text>
+
+    <rect x="464" y="590" width="180" height="56" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="554" y="612" text-anchor="middle">POST /skills</text>
+    <text x="554" y="630" text-anchor="middle">validated, not run</text>
+
+    <rect x="688" y="590" width="140" height="56" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="758" y="612" text-anchor="middle">dashboard</text>
+    <text x="758" y="630" text-anchor="middle">web app</text>
+
+    <rect x="872" y="590" width="112" height="56" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="928" y="612" text-anchor="middle">task board</text>
+    <text x="928" y="630" text-anchor="middle">shared queue</text>
+
+    <text x="16" y="664" font-size="12">Purple outline marks a model call.</text>
+  </g>
+</svg>
