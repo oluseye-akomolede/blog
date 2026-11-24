@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 460" width="1000" height="460" role="img" aria-labelledby="t">
+  <title id="t">The two-stage training pipeline with the release gate. Stage 1 trains on COCO from ImageNet weights and keeps the best epoch on COCO validation IoU. Its checkpoint starts stage 2, which fine-tunes on BDD100K with COCO training batches mixed in at a share of 0.75, validates on both BDD and COCO validation every epoch, and chooses its best epoch on BDD validation only. The gate then asks whether COCO validation is no more than one point below 78.28, the model in use. If it is, the candidate ships; if not, it does not.</title>
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#57606a"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1000" height="460" fill="#ffffff"/>
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">
+
+    <rect x="16" y="50" width="150" height="120" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="91" y="80" text-anchor="middle" font-weight="600">ImageNet weights</text>
+    <text x="91" y="104" text-anchor="middle" font-size="12">a backbone already</text>
+    <text x="91" y="122" text-anchor="middle" font-size="12">trained on</text>
+    <text x="91" y="140" text-anchor="middle" font-size="12">ImageNet</text>
+
+    <rect x="200" y="50" width="270" height="120" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="335" y="80" text-anchor="middle" font-weight="600">Stage 1: train on COCO</text>
+    <text x="335" y="104" text-anchor="middle" font-size="12">COCO training split</text>
+    <text x="335" y="124" text-anchor="middle" font-size="12">validate on COCO val every epoch</text>
+    <text x="335" y="144" text-anchor="middle" font-size="12">best epoch and early stopping</text>
+    <text x="335" y="160" text-anchor="middle" font-size="12">both read val_iou</text>
+
+    <rect x="504" y="50" width="210" height="120" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="609" y="80" text-anchor="middle" font-weight="600">best COCO checkpoint</text>
+    <text x="609" y="104" text-anchor="middle" font-size="12">one file, chosen on</text>
+    <text x="609" y="122" text-anchor="middle" font-size="12">COCO accuracy alone</text>
+
+    <rect x="200" y="230" width="270" height="120" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="335" y="258" text-anchor="middle" font-weight="600">Stage 2: fine-tune on BDD100K</text>
+    <text x="335" y="282" text-anchor="middle" font-size="12">COCO train mixed in, share 0.75</text>
+    <text x="335" y="302" text-anchor="middle" font-size="12">validate on BDD val and COCO val</text>
+    <text x="335" y="322" text-anchor="middle" font-size="12">best epoch and early stopping</text>
+    <text x="335" y="340" text-anchor="middle" font-size="12">read BDD val only</text>
+
+    <polygon points="610,225 735,290 610,355 485,290" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="610" y="284" text-anchor="middle" font-size="12">COCO val at most 1 point</text>
+    <text x="610" y="302" text-anchor="middle" font-size="12">below 78.28?</text>
+
+    <rect x="770" y="232" width="214" height="64" rx="5" fill="#f6f8fa" stroke="#8250df" stroke-width="1.6"/>
+    <text x="877" y="258" text-anchor="middle" font-weight="600">ship</text>
+    <text x="877" y="278" text-anchor="middle" font-size="12">it becomes the model in use</text>
+
+    <rect x="770" y="316" width="214" height="64" rx="5" fill="#f6f8fa" stroke="#57606a"/>
+    <text x="877" y="342" text-anchor="middle" font-weight="600">do not ship</text>
+    <text x="877" y="362" text-anchor="middle" font-size="12">the model in use stays</text>
+
+    <g fill="none" stroke="#57606a" stroke-width="1.3" marker-end="url(#ar)">
+      <line x1="166" y1="110" x2="196" y2="110"/>
+      <line x1="470" y1="110" x2="500" y2="110"/>
+      <polyline points="609,170 609,205 335,205 335,226"/>
+      <line x1="470" y1="290" x2="481" y2="290"/>
+      <line x1="735" y1="290" x2="766" y2="264"/>
+      <line x1="735" y1="290" x2="766" y2="348"/>
+    </g>
+
+    <text x="480" y="199" font-size="12">init-from</text>
+    <text x="738" y="258" font-size="12" fill="#57606a">yes</text>
+    <text x="738" y="344" font-size="12" fill="#57606a">no</text>
+
+    <text x="16" y="410" font-size="12" fill="#57606a">The gate is a release rule applied by hand when results come in. The trainer computes both validation numbers every epoch and enforces nothing.</text>
+    <text x="16" y="430" font-size="12" fill="#57606a">Purple outline marks the outcome the gate allows. Every other box is ordinary training code.</text>
+  </g>
+</svg>
